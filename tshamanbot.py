@@ -28,7 +28,8 @@ class ClientFrame(BotFrame):
 
         b_healme.Bind(wx.EVT_BUTTON, lambda e : Keyboard.press("F2 6")); 
         b_healself.Bind(wx.EVT_BUTTON, lambda e : Keyboard.press("F1 6")); 
-        b_follow.Bind(wx.EVT_BUTTON, lambda e : Keyboard.press("F2 slash f Return")); 
+        #b_follow.Bind(wx.EVT_BUTTON, lambda e : Keyboard.press("F2 slash f Return")); 
+        b_follow.Bind(wx.EVT_BUTTON, lambda e : Keyboard.press("9")); 
         b_stop.Bind(wx.EVT_BUTTON, lambda e : Keyboard.press("s")); 
         b_jump.Bind(wx.EVT_BUTTON, lambda e : Keyboard.press("space")); 
         b_eat.Bind(wx.EVT_BUTTON, lambda e : Keyboard.press("-")); 
