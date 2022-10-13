@@ -57,7 +57,7 @@ class Keyboard():
             print(repr(ex))
 
     def rotate(self, rotation):
-        cmd = "./" + rotation + ".sh " + WIN_ID
+        cmd = "./rotations/" + rotation + ".sh " + WIN_ID
         self.runner.executeBackground(cmd)
 
     def stopRotate(self):
