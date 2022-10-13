@@ -1,5 +1,5 @@
 #!/bin/bash
-source ../rotation-lib.sh
+source rotation-lib.sh
 
 while true 
 do
