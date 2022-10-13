@@ -6,6 +6,7 @@ import shlex,subprocess
 
 if (len(sys.argv) != 2) :
     print("Window ID Required")
+    exit(1)
 
 WIN_ID = sys.argv[1]
 CMD_TEMPLATE = "xdotool key --window " + WIN_ID + " --delay 28 "
@@ -77,4 +78,6 @@ class BotFrame(wx.Dialog):
     def onClose(self, event):
         self.keyboard.stopRotate()
         self.Destroy()
+
+
 
