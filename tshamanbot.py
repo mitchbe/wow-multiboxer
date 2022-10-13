@@ -32,7 +32,7 @@ class ClientFrame(BotFrame):
         b_stop.Bind(wx.EVT_BUTTON, lambda e : Keyboard.press("s")); 
         b_jump.Bind(wx.EVT_BUTTON, lambda e : Keyboard.press("space")); 
         b_eat.Bind(wx.EVT_BUTTON, lambda e : Keyboard.press("-")); 
-        b_drink.Bind(wx.EVT_BUTTON, lambda e : Keyboard.press("=")); 
+        b_drink.Bind(wx.EVT_BUTTON, lambda e : Keyboard.press("equal")); 
         b_rot1.Bind(wx.EVT_TOGGLEBUTTON, lambda e : self.keyboard.rotate("shaman/dpsassist") if e.IsChecked() else self.keyboard.stopRotate()); 
         #b_rot2.Bind(wx.EVT_TOGGLEBUTTON, lambda e : self.keyboard.rotate("rotation2") if e.IsChecked() else self.keyboard.stopRotate()); 
 
