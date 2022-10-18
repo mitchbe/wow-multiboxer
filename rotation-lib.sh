@@ -11,6 +11,7 @@ echo "Sending key events to window: $WIN_ID"
 function keyboard_press () {
 	keys=$1
 	xdotool key --clearmodifiers --window $WIN_ID --delay 27 $keys
+	#xdotool key --window $WIN_ID --delay 27 $keys
 	echo $1
 }
 

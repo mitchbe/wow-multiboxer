@@ -4,12 +4,13 @@ import wx
 import sys
 import shlex,subprocess
 
-if (len(sys.argv) != 2) :
-    print("Window ID Required")
+if (len(sys.argv) != 3) :
+    print("Window ID Required for CONTROL and BOT")
     exit(1)
 
-WIN_ID = sys.argv[1]
-CMD_TEMPLATE = "xdotool key --window " + WIN_ID + " --delay 28 "
+CONTROL_WIN_ID = sys.argv[1]
+BOT_WIN_ID = sys.argv[2]
+CMD_TEMPLATE = "xdotool key --window " + BOT_WIN_ID + " --delay 28 "
 
 class Runner():
     @staticmethod
@@ -57,8 +58,30 @@ class Keyboard():
             print("Error executing: '" + cmd + "'");
             print(repr(ex))
 
+    @staticmethod
+    def hold(key, time):
+        cmd1 = "xdotool keydown --window " + BOT_WIN_ID + " --delay 28 " + key 
+        cmd2 = "sleep " + str(time) 
+        cmd3 = "xdotool keyup --window " + BOT_WIN_ID + " --delay 28 " + key 
+        try:
+           Runner.executeAndWait(cmd1); 
+           Runner.executeAndWait(cmd2); 
+           Runner.executeAndWait(cmd3); 
+        except Exception as ex: 
+            print("Error executing: '" + cmd + "'");
+            print(repr(ex))
+
+    @staticmethod
+    def release(key):
+        cmd = "xdotool keyup --window " + CONTROL_WIN_ID + " --delay 28 " + key 
+        try:
+           Runner.executeAndWait(cmd); 
+        except Exception as ex: 
+            print("Error executing: '" + cmd + "'");
+            print(repr(ex))
+
     def rotate(self, rotation):
-        cmd = "./rotations/" + rotation + ".sh " + WIN_ID
+        cmd = "./rotations/" + rotation + ".sh " + BOT_WIN_ID
         self.runner.executeBackground(cmd)
 
     def stopRotate(self):
@@ -70,10 +93,47 @@ class BotFrame(wx.Dialog):
         super(BotFrame, self).__init__(*args, **kw)
         self.Bind(wx.EVT_CLOSE, self.onClose)
         self.keyboard = Keyboard()
-        self.addButtons()
+        panel = wx.Panel(self, wx.ID_ANY)
+        self.keypanel = wx.Panel(self, wx.ID_ANY)
+        self.addButtons(panel)
+        self.bindKeys()
+        self.fixFocus()
 
-    def addButtons(self):
+    def fixFocus(self):
+        self.keypanel.SetFocus()
+
+    def btnEvent(self, fn):
+        def dofn(e):
+            fn(e)
+            self.fixFocus()
+        return dofn
+
+    def addButtons(self, panel):
         pass
+
+    def bindKeys(self):
+        self.keypanel.Bind(wx.EVT_KEY_UP, self.keyUp)
+        #panel.Bind(wx.EVT_KEY_DOWN, self.keyDown)
+        #panel.Bind(wx.EVT_CHAR_HOOK, self.charHook)
+        #self.Bind(wx.EVT_CHAR, self.keyDown)
+
+    def keyDown(self, evt):
+        pass
+
+    def keyUp(self, event):
+        keycode = event.GetUnicodeKey()
+        if keycode != wx.WXK_NONE:
+            print("Key released " + chr(keycode))
+            Keyboard.release(chr(keycode))
+        else:
+            # It's a special key, deal with all the known ones:
+            keycode = event.GetKeyCode()
+            if keycode in [wx.WXK_LEFT, wx.WXK_RIGHT]:
+                pass
+            elif keycode == wx.WXK_F1:
+                pass
+            elif keycode == wx.WXK_SHIFT:
+                Keyboard.release('Shift_L Shift_R')
 
     def onClose(self, event):
         self.keyboard.stopRotate()

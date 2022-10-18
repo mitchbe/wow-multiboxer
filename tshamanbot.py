@@ -18,6 +18,7 @@ class ClientFrame(BotFrame):
 
         b_healme   = wx.Button(pnl, wx.ID_ANY, "Heal Me")
         b_healself = wx.Button(pnl, wx.ID_ANY, "Heal Self")
+        b_target   = wx.Button(pnl, wx.ID_ANY, "Target")
         b_follow   = wx.Button(pnl, wx.ID_ANY, "Follow")
         b_stop     = wx.Button(pnl, wx.ID_ANY, "Stop")
         b_jump     = wx.Button(pnl, wx.ID_ANY, "Jump")
@@ -28,6 +29,7 @@ class ClientFrame(BotFrame):
 
         b_healme.Bind(wx.EVT_BUTTON, lambda e : Keyboard.press("F2 6")); 
         b_healself.Bind(wx.EVT_BUTTON, lambda e : Keyboard.press("F1 6")); 
+        b_target.Bind(wx.EVT_BUTTON, lambda e : Keyboard.press("F2 f")); 
         #b_follow.Bind(wx.EVT_BUTTON, lambda e : Keyboard.press("F2 slash f Return")); 
         b_follow.Bind(wx.EVT_BUTTON, lambda e : Keyboard.press("9")); 
         b_stop.Bind(wx.EVT_BUTTON, lambda e : Keyboard.press("s")); 
@@ -39,6 +41,7 @@ class ClientFrame(BotFrame):
 
         sizer.Add(b_healme)
         sizer.Add(b_healself)
+        sizer.Add(b_target)
         sizer.Add(b_follow)
         sizer.Add(b_stop)
         sizer.Add(b_jump)
