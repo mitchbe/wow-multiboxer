@@ -4,13 +4,14 @@ import wx
 import sys
 import shlex,subprocess
 
-if (len(sys.argv) != 3) :
-    print("Window ID Required for CONTROL and BOT")
+if (len(sys.argv) != 2) :
+    #print("Window ID Required for CONTROL and BOT")
+    print("Window ID Required for BOT")
     exit(1)
 
-CONTROL_WIN_ID = sys.argv[1]
-BOT_WIN_ID = sys.argv[2]
-CMD_TEMPLATE = "xdotool key --window " + BOT_WIN_ID + " --delay 28 "
+#CONTROL_WIN_ID = sys.argv[1]
+BOT_WIN_ID = sys.argv[1]
+CMD_TEMPLATE = "xdotool key --clearmodifiers --window " + BOT_WIN_ID + " --delay 28 "
 
 class Runner():
     @staticmethod
@@ -54,28 +55,32 @@ class Keyboard():
         cmd = CMD_TEMPLATE + keys;
         try:
            Runner.executeAndWait(cmd); 
+           print(cmd)
         except Exception as ex: 
             print("Error executing: '" + cmd + "'");
             print(repr(ex))
 
     @staticmethod
     def hold(key, time):
-        cmd1 = "xdotool keydown --window " + BOT_WIN_ID + " --delay 28 " + key 
+        cmd1 = "xdotool keydown --clearmodifiers --window " + BOT_WIN_ID + " --delay 28 " + key 
         cmd2 = "sleep " + str(time) 
-        cmd3 = "xdotool keyup --window " + BOT_WIN_ID + " --delay 28 " + key 
+        cmd3 = "xdotool keyup --clearmodifiers --window " + BOT_WIN_ID + " --delay 28 " + key 
         try:
            Runner.executeAndWait(cmd1); 
+           print(cmd1)
            Runner.executeAndWait(cmd2); 
            Runner.executeAndWait(cmd3); 
+           print(cmd3)
         except Exception as ex: 
             print("Error executing: '" + cmd + "'");
             print(repr(ex))
 
     @staticmethod
     def release(key):
-        cmd = "xdotool keyup --window " + CONTROL_WIN_ID + " --delay 28 " + key 
+        #cmd = "xdotool keyup --clearmodifiers --window " + CONTROL_WIN_ID + " --delay 28 " + key 
         try:
-           Runner.executeAndWait(cmd); 
+            pass
+           #Runner.executeAndWait(cmd); 
         except Exception as ex: 
             print("Error executing: '" + cmd + "'");
             print(repr(ex))

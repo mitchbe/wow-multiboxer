@@ -10,6 +10,7 @@ from botlib import *
 class ClientFrame(BotFrame):
     def __init__(self, *args, **kw):
         super(ClientFrame, self).__init__(*args, **kw)
+        self.autoFollow = False
 
 
     def moveBtns(self, panel):
@@ -20,11 +21,17 @@ class ClientFrame(BotFrame):
         b_turnleft.Bind(wx.EVT_BUTTON, self.btnEvent(lambda e : Keyboard.hold("a", 0.5))); 
         b_turnright.Bind(wx.EVT_BUTTON, self.btnEvent(lambda e : Keyboard.hold("d", 0.5))); 
 
-        b_walk      = wx.Button(panel, wx.ID_ANY, "Walk")
-        b_stop      = wx.Button(panel, wx.ID_ANY, "Stop")
-        b_follow    = wx.Button(panel, wx.ID_ANY, "Follow")
+        b_walk       = wx.Button(panel, wx.ID_ANY, "Walk")
+        b_stop       = wx.Button(panel, wx.ID_ANY, "Stop")
+        b_follow     = wx.Button(panel, wx.ID_ANY, "Follow")
+        b_autofollow = wx.ToggleButton(panel, wx.ID_ANY, "L. Follow")
         b_walk.Bind(wx.EVT_BUTTON, self.btnEvent(lambda e : Keyboard.hold("w", 1))); 
         b_stop.Bind(wx.EVT_BUTTON, self.btnEvent(lambda e : Keyboard.press("s"))); 
+
+        def toggleAutoFollow(e):
+           self.autoFollow = True if e.IsChecked() else False 
+        b_autofollow.Bind(wx.EVT_TOGGLEBUTTON, self.btnEvent(toggleAutoFollow)); 
+
         b_follow.Bind(wx.EVT_BUTTON, self.btnEvent(lambda e : Keyboard.press("9"))); 
 
         s = wx.StaticBoxSizer(wx.StaticBox(panel, -1, "Move"), wx.VERTICAL)
@@ -40,6 +47,7 @@ class ClientFrame(BotFrame):
         s.Add(s1, 1, wx.EXPAND) 
 
         s1 = wx.BoxSizer(wx.HORIZONTAL)
+        s1.Add(b_autofollow, 1, wx.EXPAND | wx.ALIGN_CENTER | wx.ALL, 2)
         s1.Add(b_follow, 1, wx.EXPAND | wx.ALIGN_CENTER | wx.ALL, 2)
         s.Add(s1, 1, wx.EXPAND) 
 
@@ -89,6 +97,14 @@ class ClientFrame(BotFrame):
 
         return s
 
+    def autoFollow(self, fn):
+        def handler(e):
+            fn(e)
+            if self.autoFollow and not e.IsChecked() :
+                Keyboard.press("9"); 
+
+        return handler
+
 
     def actionBtns(self, panel):
         b_target    = wx.Button(panel, wx.ID_ANY, "Target")
@@ -97,8 +113,8 @@ class ClientFrame(BotFrame):
         b_wand      = wx.Button(panel, wx.ID_ANY, "Wand")
 
         b_target.Bind(wx.EVT_BUTTON, self.btnEvent(lambda e : Keyboard.press("F2 f"))); 
-        b_burn.Bind(wx.EVT_TOGGLEBUTTON, self.btnEvent(lambda e : self.keyboard.rotate("mage/burn") if e.IsChecked() else self.keyboard.stopRotate())); 
-        b_freeze.Bind(wx.EVT_TOGGLEBUTTON, self.btnEvent(lambda e : self.keyboard.rotate("mage/freeze") if e.IsChecked() else self.keyboard.stopRotate())); 
+        b_burn.Bind(wx.EVT_TOGGLEBUTTON, self.btnEvent(self.autoFollow(lambda e : self.keyboard.rotate("mage/burn") if e.IsChecked() else self.keyboard.stopRotate()))); 
+        b_freeze.Bind(wx.EVT_TOGGLEBUTTON, self.btnEvent(self.autoFollow(lambda e : self.keyboard.rotate("mage/freeze") if e.IsChecked() else self.keyboard.stopRotate()))); 
         b_wand.Bind(wx.EVT_BUTTON, self.btnEvent(lambda e : Keyboard.press("F2 f 5"))); 
 
         s = wx.StaticBoxSizer(wx.StaticBox(panel, -1, "Action"), wx.VERTICAL)
@@ -120,9 +136,9 @@ class ClientFrame(BotFrame):
 
     def addButtons(self, panel):
         sizer = wx.BoxSizer(wx.VERTICAL)
-        sizer.Add(self.moveBtns(panel), 0, wx.EXPAND | wx.ALIGN_CENTER | wx.ALL, 2)
         sizer.Add(self.restBtns(panel), 0, wx.EXPAND | wx.ALIGN_CENTER | wx.ALL, 2)
         sizer.Add(self.potionBtns(panel), 0, wx.EXPAND | wx.ALIGN_CENTER | wx.ALL, 2)
+        sizer.Add(self.moveBtns(panel), 0, wx.EXPAND | wx.ALIGN_CENTER | wx.ALL, 2)
         sizer.Add(self.actionBtns(panel), 0, wx.EXPAND | wx.ALIGN_CENTER | wx.ALL, 2)
 
         panel.SetSizerAndFit(sizer)
