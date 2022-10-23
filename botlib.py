@@ -3,6 +3,7 @@
 import wx
 import sys
 import shlex,subprocess
+import threading,time
 
 if (len(sys.argv) != 2) :
     #print("Window ID Required for CONTROL and BOT")
@@ -91,7 +92,28 @@ class Keyboard():
 
     def stopRotate(self):
         self.runner.stopBackground()
-        
+    
+class ScreenInfo():
+    def __init__(self):
+        pass
+
+    def printScreenInfo():
+        result=Runner.executeAndWait("./readscreen.sh");
+        print(result)
+
+    def doPrintScreenInfo():
+        def print_loop():
+            for i in range(1,60):
+                ScreenInfo.printScreenInfo()
+                time.sleep(1)
+
+        x = threading.Thread(target=print_loop)
+        x.start()
+        x.join()
+
+
+
+
 
 class BotFrame(wx.Dialog):
     def __init__(self, *args, **kw):
@@ -117,7 +139,8 @@ class BotFrame(wx.Dialog):
         pass
 
     def bindKeys(self):
-        self.keypanel.Bind(wx.EVT_KEY_UP, self.keyUp)
+        pass
+        #self.keypanel.Bind(wx.EVT_KEY_UP, self.keyUp)
         #panel.Bind(wx.EVT_KEY_DOWN, self.keyDown)
         #panel.Bind(wx.EVT_CHAR_HOOK, self.charHook)
         #self.Bind(wx.EVT_CHAR, self.keyDown)
@@ -125,20 +148,23 @@ class BotFrame(wx.Dialog):
     def keyDown(self, evt):
         pass
 
+    '''
     def keyUp(self, event):
         keycode = event.GetUnicodeKey()
         if keycode != wx.WXK_NONE:
             print("Key released " + chr(keycode))
             Keyboard.release(chr(keycode))
         else:
+            pass
+            #if keycode == wx.WXK_SHIFT:
+            #    Keyboard.press('Shift_L Shift_R')
             # It's a special key, deal with all the known ones:
-            keycode = event.GetKeyCode()
-            if keycode in [wx.WXK_LEFT, wx.WXK_RIGHT]:
-                pass
-            elif keycode == wx.WXK_F1:
-                pass
-            elif keycode == wx.WXK_SHIFT:
-                Keyboard.release('Shift_L Shift_R')
+            #keycode = event.GetKeyCode()
+            #if keycode in [wx.WXK_LEFT, wx.WXK_RIGHT]:
+            #    pass
+            #elif keycode == wx.WXK_F1:
+            #    pass
+    '''
 
     def onClose(self, event):
         self.keyboard.stopRotate()

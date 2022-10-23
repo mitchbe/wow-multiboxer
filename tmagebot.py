@@ -132,7 +132,13 @@ class ClientFrame(BotFrame):
         s1.Add(b_wand, 1, wx.EXPAND | wx.ALIGN_CENTER | wx.ALL, 2)
         s.Add(s1, 1, wx.EXPAND)
 
+        b_info    = wx.Button(panel, wx.ID_ANY, "Info")
+        b_info.Bind(wx.EVT_BUTTON, self.btnEvent(lambda e : ScreenInfo.doPrintScreenInfo())); 
+        s1 = wx.BoxSizer(wx.HORIZONTAL)
+        s1.Add(b_info, 1, wx.EXPAND | wx.ALIGN_CENTER | wx.ALL, 2)
+        s.Add(s1, 1, wx.EXPAND)
         return s
+
 
     def addButtons(self, panel):
         sizer = wx.BoxSizer(wx.VERTICAL)
