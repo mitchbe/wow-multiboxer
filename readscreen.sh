@@ -5,14 +5,40 @@ function screenshot() {
 	xwd -id $WIN_ID | convert xwd:- out/screenshot.png
 }
 
-COMBAT_ICON_BOX_FULLSCRN='24x21+30+74' 
+COMBAT_ICON_BOX_FULLSCRN='26x20+30+74' 
 COMBAT_ICON_BOX_HALFSCRN='15x30+15+73'
 
 function test_combat() {
+# composite out/baseline.bmp xwd:- -compose difference
+#convert out/screenshot.png -crop '26x20+30+74' -colorspace gray -brightness-contrast 0,50  out/tmp.png
+ 	
+	local tmp="$(mktemp -p $dir)"
 
-	convert miff:$img -crop "$COMBAT_ICON_BOX_FULLSCRN" \
-		\( -map pallettes/combaticon_pallette.png \) miff:- | \
-	convert miff:- -format %c histogram:info:- | grep red | wc -l
+	result=$(convert miff:$img -crop "$COMBAT_ICON_BOX_FULLSCRN" \
+		-colorspace gray -brightness-contrast 0,50 miff:- | \
+	composite kombaticon.png miff:- -compose difference miff:- | \
+	convert	miff:- -map pallettes/bnw_pallette.png miff:- |
+	convert miff:- -format %c histogram:info:- | grep "#FFFFFF" | awk '{print $1}'| sed 's:.$::')
+	
+	result=$(($result))
+	if [[ result -gt 10 ]]; then
+		echo "false"
+		return
+	fi
+	echo "true"
+
+
+
+	#histogram=$(convert miff:$tmp -format %c histogram:info:-) 
+	#echo -e "$histogram"
+
+	#convert miff:- -format %c histogram:info:- | grep red | wc -l
+	#convert miff:- -map pallettes/bnw_pallette.png miff:-
+
+
+	#convert miff:$img -crop "$COMBAT_ICON_BOX_FULLSCRN" \
+	#	\( -map pallettes/combaticon_pallette.png \) miff:- | \
+	#convert miff:- -format %c histogram:info:- | grep red | wc -l
 }
 
 HEALTHBAR_BOX_FULLSCRN='143x2+117+60'
@@ -51,7 +77,7 @@ function get_health() {
 #WIN_ID=$(xwininfo -name "World of Warcraft" | grep "Window id" | cut -d ' ' -f 4 )
 WIN_ID=$1
 #rm out/*
-#screenshot
+screenshot
 
 dir="/dev/shm/wowbot/"
 rm -rf $dir 
@@ -60,12 +86,16 @@ img="$(mktemp -p $dir)"
 #echo $img
 
 xwd -id $WIN_ID | convert xwd:- miff:- >> $img
+if [ $? -ne 0 ]; then
+	jq -n "{nodata:1}"
+	exit 0
+fi
 #convert miff:$img out/proof.png
 
 isCombat=$(test_combat)
 hp=$(get_health)
 #echo "Player in combat: $isCombat; HP: $hp"
-jq -n "{in_combat:\"$isCombat\", health:\"$hp\"}"
+jq -n "{in_combat:$isCombat, health:\"$hp\"}"
 
 
 rm $img

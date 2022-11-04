@@ -67,17 +67,33 @@ class HealerControl():
         if (now - cooldown > self.last_HoT) :
             self.last_HoT = now
             self.input.keypress("F2 4"); 
+            sleep(1)
 
     def heal_tank_small(self):       self.input.keypress("F1 5"); 
 
     def heal_tank_medium(self):      
+        self.input.keypress("F2 5"); 
+        sleep(2.55)
+        '''
         cooldown = 2500
         now = TimeUtil.get_time_ms()
         if (now - cooldown > self.last_H) :
             self.last_H = now
             self.input.keypress("F2 5"); 
+        '''
 
     def heal_tank_big(self):         self.input.keypress("F1 5"); 
+
+    def shield_tank(self):          
+        self.input.keypress("F2 Ctrl+6");
+        sleep(1.5)
+
+    def assist_tank_wand(self):     
+        self.input.keypress("F2 f 0");
+
+    def assist_tank_dot(self):     
+        self.input.keypress("F2 f 2");
+        sleep(1.2)
 
 
 class TankHealFrame(wx.Dialog):
@@ -100,6 +116,8 @@ class TankHealFrame(wx.Dialog):
         self.auto_follow = False
 
         self.poll_screen()
+
+        self.in_combat = False
 
         
     def onClose(self, event):
@@ -131,19 +149,52 @@ class TankHealFrame(wx.Dialog):
         return screen_info
 
     def process_screen_info(self, screen_info):
-        print("In combat: " + screen_info["in_combat"])
-        print("Health: " + screen_info["health"])
-        health = float(screen_info["health"])
-        in_combat  = screen_info["in_combat"]
-        self.l_health.SetLabel("Cmbt:" + in_combat + ", HP: " + str(health))
-    
-        if (health > 0) :
-            if (health < 95) : 
-                self.heal_ctrl.heal_tank_over_time()
+        if "nodata" in screen_info:
+            print("No screen data.")
+            return
 
-            if (health < 90) : 
+        print(screen_info)
+        self.l_health.SetLabel("Cmbt:" + str(screen_info["in_combat"]) + ", HP: " + screen_info["health"])
+    
+        in_combat  = screen_info["in_combat"]
+        if self.in_combat and not in_combat: 
+            self.exit_combat()
+
+        if not self.in_combat and in_combat:
+            self.enter_combat()
+
+        cast = False
+
+        health = float(screen_info["health"])
+        if health > 0 :
+            if health < 95 : 
+                self.heal_ctrl.heal_tank_over_time()
+                cast = True
+
+            if health < 75 : 
                 self.heal_ctrl.heal_tank_medium()
-        
+                cast = True
+
+        #if cast == True and self.in_combat:
+        #    self.heal_ctrl.assist_tank_wand()
+
+        if self.in_combat:
+            self.heal_ctrl.assist_tank_wand()
+       
+    
+    def enter_combat(self):
+        print("Enter Combat...")
+        self.in_combat = True
+        self.heal_ctrl.shield_tank()
+        self.heal_ctrl.assist_tank_dot()
+        self.heal_ctrl.assist_tank_wand()
+
+    def exit_combat(self):
+        print("...Exit Combat!")
+        self.in_combat = False 
+
+
+
 
     ### Add Widgets
 
