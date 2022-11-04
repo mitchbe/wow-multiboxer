@@ -11,7 +11,7 @@ COMBAT_ICON_BOX_HALFSCRN='15x30+15+73'
 function test_combat() {
 
 	convert miff:$img -crop "$COMBAT_ICON_BOX_FULLSCRN" \
-		\( -map combaticon_pallette.png \) miff:- | \
+		\( -map pallettes/combaticon_pallette.png \) miff:- | \
 	convert miff:- -format %c histogram:info:- | grep red | wc -l
 }
 
@@ -32,7 +32,7 @@ function get_health() {
 	convert miff:$img -crop "$HEALTHBAR_BOX_FULLSCRN" miff:- | \
 	convert miff:- -channel G -separate miff:- | \
 	convert miff:- -brightness-contrast 10,50 miff:- | \
-	convert	miff:- -map bnw_pallette.png miff:$tmp
+	convert	miff:- -map pallettes/bnw_pallette.png miff:$tmp
 	histogram=$(convert miff:$tmp -format %c histogram:info:-) 
 
 	local lime=$(($(echo -e "$histogram" | grep "FFFFFF" | awk '{print $1}'| sed 's:.$::')))
@@ -48,7 +48,8 @@ function get_health() {
 }
 
 
-WIN_ID=$(xwininfo -name "World of Warcraft" | grep "Window id" | cut -d ' ' -f 4 )
+#WIN_ID=$(xwininfo -name "World of Warcraft" | grep "Window id" | cut -d ' ' -f 4 )
+WIN_ID=$1
 #rm out/*
 #screenshot
 
