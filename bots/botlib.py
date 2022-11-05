@@ -164,6 +164,48 @@ class PriestAi(BotAi):
         return False
 
        
+class MageAi(BotAi):
+    def __init__(self, world_state, mage_ctrl):
+        super(MageAi, self).__init__(world_state);
+        self.ctrl      = mage_ctrl
+        self.in_combat = False
+    
+    ### Public Interface
+
+    #@returns True when the AI may have more to do, False otherwise
+    def act(self): 
+        return  self.__check_combat_state_change() or \
+                self.__check_assist_main()
+
+    ### Private Methods
+
+    def __enter_combat(self):
+        sleep(1) # latency
+        self.in_combat = True
+        self.ctrl.main_target_frostbolt()
+        self.ctrl.main_target_fireblast()
+
+
+    def __exit_combat(self):
+        self.in_combat = False 
+
+    def __check_combat_state_change(self):
+        if self.in_combat and not self.world_state.in_combat: 
+            self.__exit_combat()
+            return True
+
+        if not self.in_combat and self.world_state.in_combat:
+            self.__enter_combat()
+            return True
+
+        return False
+
+
+    def __check_assist_main(self):
+        if self.in_combat:
+            self.ctrl.main_target_fireball()
+        return False
+
 
 class BotControl():
     def __init__(self, inputdev):
@@ -207,8 +249,33 @@ class BotControl():
 class MageControl(BotControl):
     def __init__(self, inputdev):
         super(MageControl, self).__init__(inputdev)
+        #self.last_fireblast = 0
 
-    # Fire
+    # Spells
+    def main_target_fireblast(self):
+        #cooldown_ms = 8100
+        #now = TimeUtil.get_time_ms()
+        #if (now - cooldown_ms > self.last_fireblast) :
+        #    self.last_fireblast = now
+        self.input.keypress("F2 f 3");
+        sleep(1.1)
+
+    def main_target_fireball(self):
+        self.input.keypress("F2 f 2");
+        sleep(2.1)
+
+    def main_target_frostbolt(self):
+        self.input.keypress("F2 f 1");
+        sleep(1.9)
+
+    def main_target_arcane_missiles(self):
+        self.input.keypress("F2 f 4");
+        sleep(3.1)
+
+    def buff_group(self, nr):     
+        self.input.keypress("Ctrl+6"); 
+        sleep(1.5)
+        super(MageControl, self).buff_group(nr)
 
 
 class PriestControl(BotControl):
