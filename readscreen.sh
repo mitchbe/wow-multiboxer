@@ -95,7 +95,7 @@ fi
 isCombat=$(test_combat)
 hp=$(get_health)
 #echo "Player in combat: $isCombat; HP: $hp"
-jq -n "{in_combat:$isCombat, health:\"$hp\"}"
+jq -n "{in_combat:$isCombat, health:$hp}"
 
 
 rm $img
