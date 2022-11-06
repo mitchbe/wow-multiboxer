@@ -8,6 +8,7 @@ from util import *
 
 
 GLOBAL_COOLDOWN=1.6
+BUFF_COOLDOWN=1.8
 
 class BotControl():
     def __init__(self, inputdev):
@@ -30,18 +31,18 @@ class BotControl():
     def buff_group(self, nr):     
         self.input.keypress("F1 6"); 
         if (nr > 1) : 
-            sleep(GLOBAL_COOLDOWN)
+            sleep(BUFF_COOLDOWN)
             self.input.keypress("F2 6"); 
         if (nr > 2) : 
-            sleep(GLOBAL_COOLDOWN)
+            sleep(BUFF_COOLDOWN)
             self.input.keypress("F3 6"); 
         if (nr > 3) : 
-            sleep(GLOBAL_COOLDOWN)
+            sleep(BUFF_COOLDOWN)
             self.input.keypress("F4 6"); 
         if (nr > 4) : 
-            sleep(GLOBAL_COOLDOWN)
+            sleep(BUFF_COOLDOWN)
             self.input.keypress("F5 6"); 
-        sleep(GLOBAL_COOLDOWN)
+        sleep(BUFF_COOLDOWN)
             
     # Potions
 
@@ -110,7 +111,7 @@ class MageControl(BotControl):
 
     def buff_group(self, nr):     
         self.input.keypress("Ctrl+6"); 
-        sleep(GLOBAL_COOLDOWN)
+        sleep(BUFF_COOLDOWN)
         super(MageControl, self).buff_group(nr)
 
 
