@@ -6,11 +6,12 @@ import json
 import shlex,subprocess,os
 from time import sleep
 from threading import Thread
-#import threading
-sys.path.append(os.getcwd() + '/../lib')
-sys.path.append(os.getcwd() + '/lib')
+#sys.path.append(os.getcwd() + '/../lib')
+#sys.path.append(os.getcwd() + '/lib')
 from util import * 
 from botlib import *
+from botai import *
+from botctrl import *
 
 
 if (len(sys.argv) == 3) :

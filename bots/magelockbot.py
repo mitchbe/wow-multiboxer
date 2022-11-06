@@ -15,25 +15,29 @@ from botctrl import *
 
 
 if (len(sys.argv) == 3) :
-    MAIN_WIN_ID = sys.argv[1]
-    MAGE_WIN_ID = sys.argv[2]
+    MAIN_WIN_ID    = sys.argv[1]
+    WARLOCK_WIN_ID = sys.argv[2]
+    MAGE_WIN_ID    = sys.argv[3]
 else :
-    print("Window ID Required for main and mage")
+    print("Window ID Required for main warlock and mage")
     exit(1)
 
 
 
-class MageBotFrame(wx.Dialog):
+class MagelockBotFrame(wx.Dialog):
 
     ### Initialize
 
     def __init__(self, *args, **kw):
-        super(MageBotFrame, self).__init__(*args, **kw)
+        super(MagelockBotFrame, self).__init__(*args, **kw)
 
         self.world_state = WorldState()
 
-        self.mage_ctrl = MageControl(Input(MAGE_WIN_ID))
-        self.mage_ai   = MageAi(self.world_state, self.mage_ctrl)
+        self.warlock_ctrl = WarlockControl(Input(WARLOCK_WIN_ID))
+        self.warlock_ai   = WarlockAi(self.world_state, self.warlock_ctrl)
+
+        self.mage_ctrl    = MageControl(Input(MAGE_WIN_ID))
+        self.mage_ai      = MageAi(self.world_state, self.mage_ctrl)
 
         # Create UI
         self.Bind(wx.EVT_CLOSE, self.onClose)
@@ -41,9 +45,14 @@ class MageBotFrame(wx.Dialog):
         self.focus_panel  = wx.Panel(self, wx.ID_ANY)
         self.__add_widgets()
 
-        # Bot Worker
-        self.mage_worker  = BotWorker(self.mage_ai) 
+        # Bot Workers
+        self.warlock_worker  = BotWorker(self.warlock_ai) 
+        self.warlock_worker.start()
+
+        self.mage_worker     = BotWorker(self.mage_ai) 
         self.mage_worker.start()
+
+        self.world_state.on_change(self.warlock_worker.wake_the_ai)
         self.world_state.on_change(self.mage_worker.wake_the_ai)
     
         # Screen Reader
@@ -97,30 +106,35 @@ class MageBotFrame(wx.Dialog):
             self.__set_focus()
         return dofn
 
-    def __btn_ctrl(self, action):
-        return self.__no_focus(lambda : self.mage_worker.push(action))
+    def __btn_ctrl(self, warlock_action, mage_action):
+        def run():
+            if warlock_action is not None:
+                self.warlock_worker.push(warlock_action)
+            if mage_action is not None:
+                self.mage_worker.push(mage_action)
+        return self.__no_focus(run)
 
     def add_move_btns(self):
         b_turnleft  = wx.Button(self.widget_panel, wx.ID_ANY, "R. Left")
         b_turnright = wx.Button(self.widget_panel, wx.ID_ANY, "R. Right")
-        b_turnleft.Bind(wx.EVT_BUTTON, self.__btn_ctrl(self.mage_ctrl.turn_left))
-        b_turnright.Bind(wx.EVT_BUTTON, self.__btn_ctrl(self.mage_ctrl.turn_right))
+        b_turnleft.Bind(wx.EVT_BUTTON, self.__btn_ctrl(None, self.mage_ctrl.turn_left))
+        b_turnright.Bind(wx.EVT_BUTTON, self.__btn_ctrl(None, self.mage_ctrl.turn_right))
 
 
         b_walk       = wx.Button(self.widget_panel, wx.ID_ANY, "Walk")
         b_stop       = wx.Button(self.widget_panel, wx.ID_ANY, "Stop")
         b_follow     = wx.Button(self.widget_panel, wx.ID_ANY, "Follow")
         b_autofollow = wx.ToggleButton(self.widget_panel, wx.ID_ANY, "Lock Follow")
-        b_walk.Bind(wx.EVT_BUTTON, self.__btn_ctrl(self.mage_ctrl.walk))
-        b_stop.Bind(wx.EVT_BUTTON, self.__btn_ctrl(self.mage_ctrl.stop))
+        b_walk.Bind(wx.EVT_BUTTON, self.__btn_ctrl(None, self.mage_ctrl.walk))
+        b_stop.Bind(wx.EVT_BUTTON, self.__btn_ctrl(None, self.mage_ctrl.stop))
 
         def toggleAutoFollow(e):
            self.auto_follow = True if e.IsChecked() else False 
         b_autofollow.Bind(wx.EVT_TOGGLEBUTTON, self.__btn_ctrl(toggleAutoFollow)) 
 
-        b_follow.Bind(wx.EVT_BUTTON, self.__btn_ctrl(self.mage_ctrl.follow)) 
+        b_follow.Bind(wx.EVT_BUTTON, self.__btn_ctrl(self.warlock_ctrl.follow, self.mage_ctrl.follow)) 
 
-        s = wx.StaticBoxSizer(wx.StaticBox(self.widget_panel, -1, "Move Healer"), wx.VERTICAL)
+        s = wx.StaticBoxSizer(wx.StaticBox(self.widget_panel, -1, "Move"), wx.VERTICAL)
 
         s1 = wx.BoxSizer(wx.HORIZONTAL)
         s1.Add(b_turnleft, 1, wx.EXPAND | wx.ALIGN_CENTER | wx.ALL, 2)
@@ -147,12 +161,12 @@ class MageBotFrame(wx.Dialog):
         c_nrParty   = wx.Choice(self.widget_panel,choices = ['1', '2', '3', '4', '5'])
         c_nrParty.SetSelection(1)
 
-        def dobuff():
+        def magegroupbuff():
             self.mage_ctrl.buff_group(c_nrParty.GetSelection() + 1)
 
-        b_buff.Bind(wx.EVT_BUTTON, self.__btn_ctrl(dobuff)) 
-        b_eat.Bind(wx.EVT_BUTTON, self.__btn_ctrl(self.mage_ctrl.eat))
-        b_drink.Bind(wx.EVT_BUTTON, self.__btn_ctrl(self.mage_ctrl.drink))
+        b_buff.Bind(wx.EVT_BUTTON, self.__btn_ctrl(self.warlock_ctrl.buff_self, magegroupbuff )) 
+        b_eat.Bind(wx.EVT_BUTTON, self.__btn_ctrl(delay(self.warlock_ctrl.eat, 0, 1000), delay(self.mage_ctrl.eat, 0, 1000))
+        b_drink.Bind(wx.EVT_BUTTON, self.__btn_ctrl(delay(self.warlock_ctrl.drink, 0, 1000), delay(self.mage_ctrl.drink, 0, 1000))
 
         s = wx.StaticBoxSizer(wx.StaticBox(self.widget_panel, -1, "Rest"), wx.VERTICAL)
 
@@ -172,8 +186,8 @@ class MageBotFrame(wx.Dialog):
         b_manapot       = wx.Button(self.widget_panel, wx.ID_ANY, "Mana")
         b_healthpot     = wx.Button(self.widget_panel, wx.ID_ANY, "Health")
 
-        b_healthpot.Bind(wx.EVT_BUTTON, self.__btn_ctrl(self.mage_ctrl.potion_health)) 
-        b_manapot.Bind(wx.EVT_BUTTON, self.__btn_ctrl(self.mage_ctrl.potion_mana)) 
+        b_healthpot.Bind(wx.EVT_BUTTON, self.__btn_ctrl(None, self.mage_ctrl.potion_health)) 
+        b_manapot.Bind(wx.EVT_BUTTON, self.__btn_ctrl(None, self.mage_ctrl.potion_mana)) 
 
         s = wx.StaticBoxSizer(wx.StaticBox(self.widget_panel, -1, "Potions"), wx.VERTICAL)
 
@@ -230,6 +244,6 @@ class MageBotFrame(wx.Dialog):
 
 if __name__ == '__main__':
     app = wx.App()
-    frm = MageBotFrame(None, title="Mage Bot")
+    frm = MagelockBotFrame(None, title="Magelock Bot")
     frm.Show()
     app.MainLoop()
