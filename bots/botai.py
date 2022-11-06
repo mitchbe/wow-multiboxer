@@ -91,6 +91,7 @@ class MageAi(BotAi):
     ### Private Methods
 
     def __enter_combat(self):
+        print("Mage: enter combat")
         #sleep(ENTER_COMBAT_LATENCY_WAIT) 
         delay(0, 1000)
         self.in_combat = True
@@ -99,6 +100,7 @@ class MageAi(BotAi):
 
 
     def __exit_combat(self):
+        print("Mage: exit combat")
         self.in_combat = False 
 
     def __check_combat_state_change(self):
@@ -139,6 +141,7 @@ class WarlockAi(BotAi):
 
     def __enter_combat(self):
         #sleep(ENTER_COMBAT_LATENCY_WAIT) 
+        print("Warlock: enter combat")
         delay(0, 1000)
         self.in_combat = True
         self.ctrl.main_target_corruption()
@@ -148,6 +151,7 @@ class WarlockAi(BotAi):
 
     def __exit_combat(self):
         self.in_combat = False 
+        print("Warlock: exit combat")
 
     def __check_combat_state_change(self):
         if self.in_combat and not self.world_state.in_combat: 

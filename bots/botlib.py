@@ -42,6 +42,7 @@ class ScreenReader():
 
         self.world_state.in_combat   = screen_info["in_combat"]
         self.world_state.main_health = screen_info["health"]
+        print("ScreenReader: update in_combat=" + self.world_state.in_combat)
         wx.CallAfter(self.world_state.changed)
 
 

@@ -25,8 +25,13 @@ class BotControl():
 
     # Buff
 
-    def eat(self):          self.input.keypress("minus"); 
-    def drink(self):        self.input.keypress("equal"); 
+    def eat(self):          
+        print("cast Eat")
+        self.input.keypress("minus"); 
+
+    def drink(self):        
+        print("cast Drink")
+        self.input.keypress("equal"); 
 
     def buff_group(self, nr):     
         self.input.keypress("F1 6"); 
@@ -56,26 +61,32 @@ class WarlockControl(BotControl):
 
     # Spells
     def main_target_corruption(self):
+        print("Warlock: cast Corruption")
         self.input.keypress("F2 f 2");
         sleep(GLOBAL_COOLDOWN)
 
     def main_target_curse_agony(self):
+        print("Warlock: cast Curse of Agony")
         self.input.keypress("F2 f 3");
         sleep(GLOBAL_COOLDOWN)
 
     def main_target_immolate(self):
+        print("Warlock: cast Immolate")
         self.input.keypress("F2 f 4");
         sleep(2.1)
 
     def main_target_shadowbolt(self):
+        print("Warlock: cast Shadowbolt")
         self.input.keypress("F2 f 5");
         sleep(2.3)
 
     def main_target_drain_soul(self):
+        print("Warlock: cast Drain Soul")
         self.input.keypress("F2 f 7");
         sleep(GLOBAL_COOLDOWN)
 
     def buff_self(self):     
+        print("Warlock: buff self")
         self.input.keypress("F1 6"); 
         sleep(GLOBAL_COOLDOWN)
 
@@ -98,18 +109,22 @@ class MageControl(BotControl):
         sleep(1)
 
     def main_target_fireball(self):
+        print("Mage: cast Fireball")
         self.input.keypress("F2 f 2");
         sleep(2.1)
 
     def main_target_frostbolt(self):
+        print("Mage: cast Frostbolt")
         self.input.keypress("F2 f 1");
         sleep(2)
 
     def main_target_arcane_missiles(self):
+        print("Mage: cast Arcane Missiles")
         self.input.keypress("F2 f 4");
         sleep(3.1)
 
     def buff_group(self, nr):     
+        print("Mage: buff group (" + nr + ")")
         self.input.keypress("Ctrl+6"); 
         sleep(BUFF_COOLDOWN)
         super(MageControl, self).buff_group(nr)
