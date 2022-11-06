@@ -199,11 +199,13 @@ class MagelockBotFrame(wx.Dialog):
 
 
     def add_warlock_ai_btns(self):
+        def b_souldrain_run(e): self.warlock_ai.use_souldrain = e.IsChecked(); 
         b_souldrain    = wx.ToggleButton(self.widget_panel, wx.ID_ANY, "Soul Drain")
-        b_souldrain.Bind(wx.EVT_TOGGLEBUTTON, self.__no_focus(lambda e : self.warlock_ai.use_souldrain = e.IsChecked())); 
+        b_souldrain.Bind(wx.EVT_TOGGLEBUTTON, self.__no_focus(b_souldrain_run)); 
 
+        def b_autofollow_run(e): self.warlock_ai.autofollow = e.IsChecked(); 
         b_autofollow    = wx.ToggleButton(self.widget_panel, wx.ID_ANY, "Autofollow")
-        b_autofollow.Bind(wx.EVT_TOGGLEBUTTON, self.__no_focus(lambda e : self.warlock_ai.autofollow = e.IsChecked())); 
+        b_autofollow.Bind(wx.EVT_TOGGLEBUTTON, self.__no_focus(b_autofollow_run)); 
 
         s = wx.StaticBoxSizer(wx.StaticBox(self.widget_panel, -1, "Warlock AI"), wx.VERTICAL)
         s1 = wx.BoxSizer(wx.HORIZONTAL)
