@@ -131,6 +131,7 @@ class WarlockAi(BotAi):
         self.in_combat = False
 
         self.use_souldrain = False
+        self.autofollow = False
     
     ### Public Interface
 
@@ -153,6 +154,8 @@ class WarlockAi(BotAi):
 
     def __exit_combat(self):
         self.in_combat = False 
+        if self.autofollow : 
+            self.ctrl.follow()
         print("Warlock: exit combat")
 
     def __check_combat_state_change(self):
