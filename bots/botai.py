@@ -121,7 +121,7 @@ class MageAi(BotAi):
 
 
        
-class WarlockkAi(BotAi):
+class WarlockAi(BotAi):
     def __init__(self, world_state, warlock_ctrl):
         super(WarlockAi, self).__init__(world_state);
         self.ctrl      = warlock_ctrl
