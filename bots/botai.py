@@ -129,6 +129,8 @@ class WarlockAi(BotAi):
         super(WarlockAi, self).__init__(world_state);
         self.ctrl      = warlock_ctrl
         self.in_combat = False
+
+        self.use_souldrain = False
     
     ### Public Interface
 
@@ -166,7 +168,14 @@ class WarlockAi(BotAi):
 
 
     def __check_assist_main(self):
-        if self.in_combat:
-            self.ctrl.main_target_drain_soul()
-            #self.ctrl.main_target_shadowbolt()
-        return False
+        if self.use_souldrain:
+            if self.in_combat:
+                self.ctrl.main_target_drain_soul()
+            return False
+        else : 
+            if self.in_combat:
+                self.ctrl.main_target_shadowbolt()
+                return True
+            else:
+                return False
+

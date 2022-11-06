@@ -18,7 +18,7 @@ class BotControl():
 
     def turn_left(self):    self.input.keyhold("a", 0.5); 
     def turn_right(self):   self.input.keyhold("d", 0.5); 
-    def walk_back(self):    self.input.keyhold("s", 0.7); 
+    def walk_bwd(self):     self.input.keyhold("s", 0.7); 
     def walk_fwd(self):     self.input.keyhold("w", 0.7); 
     def stop(self):         self.input.keypress("s"); 
     def follow(self):       self.input.keypress("9"); 

@@ -91,6 +91,7 @@ class MagelockBotFrame(wx.Dialog):
         sizer.Add(self.add_move_btns())
         sizer.Add(self.add_buff_btns())
         sizer.Add(self.add_potion_btns())
+        sizer.Add(self.add_warlock_ai_btns())
 
         self.widget_panel.SetSizerAndFit(sizer)
         sizer.SetSizeHints(self)
@@ -102,7 +103,10 @@ class MagelockBotFrame(wx.Dialog):
 
     def __no_focus(self, fn):
         def dofn(e):
-            fn()
+            if len(signature(fn).parameters) > 0 : 
+                fn(e)
+            else :
+                fn()
             self.__set_focus()
         return dofn
 
@@ -115,24 +119,19 @@ class MagelockBotFrame(wx.Dialog):
         return self.__no_focus(run)
 
     def add_move_btns(self):
-        b_turnleft  = wx.Button(self.widget_panel, wx.ID_ANY, "R. Left")
-        b_turnright = wx.Button(self.widget_panel, wx.ID_ANY, "R. Right")
-        b_turnleft.Bind(wx.EVT_BUTTON, self.__btn_ctrl(None, self.mage_ctrl.turn_left))
-        b_turnright.Bind(wx.EVT_BUTTON, self.__btn_ctrl(None, self.mage_ctrl.turn_right))
-
-
-        b_walk       = wx.Button(self.widget_panel, wx.ID_ANY, "Walk")
+        b_turnleft   = wx.Button(self.widget_panel, wx.ID_ANY, "R. Left")
+        b_turnright  = wx.Button(self.widget_panel, wx.ID_ANY, "R. Right")
+        b_walk_fwd   = wx.Button(self.widget_panel, wx.ID_ANY, "Walk Fwd")
+        b_walk_bwd   = wx.Button(self.widget_panel, wx.ID_ANY, "Walk Bwd")
         b_stop       = wx.Button(self.widget_panel, wx.ID_ANY, "Stop")
         b_follow     = wx.Button(self.widget_panel, wx.ID_ANY, "Follow")
-        b_autofollow = wx.ToggleButton(self.widget_panel, wx.ID_ANY, "Lock Follow")
-        b_walk.Bind(wx.EVT_BUTTON, self.__btn_ctrl(None, self.mage_ctrl.walk_fwd))
-        b_stop.Bind(wx.EVT_BUTTON, self.__btn_ctrl(None, self.mage_ctrl.stop))
 
-        def toggleAutoFollow(e):
-           self.auto_follow = True if e.IsChecked() else False 
-        b_autofollow.Bind(wx.EVT_TOGGLEBUTTON, self.__no_focus(toggleAutoFollow)) 
-
-        b_follow.Bind(wx.EVT_BUTTON, self.__btn_ctrl(self.warlock_ctrl.follow, self.mage_ctrl.follow)) 
+        b_turnleft .Bind(wx.EVT_BUTTON, self.__btn_ctrl(None, self.mage_ctrl.turn_left))
+        b_turnright.Bind(wx.EVT_BUTTON, self.__btn_ctrl(None, self.mage_ctrl.turn_right))
+        b_walk_fwd .Bind(wx.EVT_BUTTON, self.__btn_ctrl(None, self.mage_ctrl.walk_fwd))
+        b_walk_bwd .Bind(wx.EVT_BUTTON, self.__btn_ctrl(None, self.mage_ctrl.walk_bwd))
+        b_stop     .Bind(wx.EVT_BUTTON, self.__btn_ctrl(None, self.mage_ctrl.stop))
+        b_follow   .Bind(wx.EVT_BUTTON, self.__btn_ctrl(self.warlock_ctrl.follow, self.mage_ctrl.follow)) 
 
         s = wx.StaticBoxSizer(wx.StaticBox(self.widget_panel, -1, "Move"), wx.VERTICAL)
 
@@ -142,12 +141,12 @@ class MagelockBotFrame(wx.Dialog):
         s.Add(s1, 1, wx.EXPAND)
 
         s1 = wx.BoxSizer(wx.HORIZONTAL)
-        s1.Add(b_walk, 1, wx.EXPAND | wx.ALIGN_CENTER | wx.ALL, 2)
-        s1.Add(b_stop, 1, wx.EXPAND | wx.ALIGN_CENTER | wx.ALL, 2)
+        s1.Add(b_walk_fwd, 1, wx.EXPAND | wx.ALIGN_CENTER | wx.ALL, 2)
+        s1.Add(b_walk_bwd, 1, wx.EXPAND | wx.ALIGN_CENTER | wx.ALL, 2)
         s.Add(s1, 1, wx.EXPAND) 
 
         s1 = wx.BoxSizer(wx.HORIZONTAL)
-        s1.Add(b_autofollow, 1, wx.EXPAND | wx.ALIGN_CENTER | wx.ALL, 2)
+        s1.Add(b_stop, 1, wx.EXPAND | wx.ALIGN_CENTER | wx.ALL, 2)
         s1.Add(b_follow, 1, wx.EXPAND | wx.ALIGN_CENTER | wx.ALL, 2)
         s.Add(s1, 1, wx.EXPAND) 
 
@@ -197,6 +196,22 @@ class MagelockBotFrame(wx.Dialog):
         s.Add(s1, 1, wx.EXPAND)
 
         return s
+
+
+    def add_warlock_ai_btns(self):
+        b_souldrain    = wx.ToggleButton(self.widget_panel, wx.ID_ANY, "Soul Drain")
+        b_souldrain.Bind(wx.EVT_TOGGLEBUTTON, self.__no_focus(lambda e : self.warlock_ai.use_souldrain = e.IsChecked())); 
+
+        b_autofollow    = wx.ToggleButton(self.widget_panel, wx.ID_ANY, "Autofollow")
+        b_autofollow.Bind(wx.EVT_TOGGLEBUTTON, self.__no_focus(lambda e : self.warlock_ai.autofollow = e.IsChecked())); 
+
+        s = wx.StaticBoxSizer(wx.StaticBox(self.widget_panel, -1, "Warlock AI"), wx.VERTICAL)
+        s1 = wx.BoxSizer(wx.HORIZONTAL)
+        s1.Add(b_souldrain, 1, wx.EXPAND | wx.ALIGN_CENTER | wx.ALL, 2)
+        s1.Add(b_autofollow, 1, wx.EXPAND | wx.ALIGN_CENTER | wx.ALL, 2)
+        s.Add(s1, 1, wx.EXPAND)
+        return s
+
     '''
 
     def autoFollow(self, fn):
