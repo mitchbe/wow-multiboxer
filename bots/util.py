@@ -9,13 +9,13 @@ import random
 from time import sleep
 
 def delayfn(fn, min_ms, max_ms): 
-    delay(min_ms, max_ms);
-    print("running fn")
-    fn();
+    def run():
+        delay(min_ms, max_ms);
+        fn();
+    return run
 
 def delay(min_ms, max_ms): 
     delay_ms = random.randint(min_ms, max_ms)
-    print("delaying: " + str((delay_ms/1000)))
     sleep(delay_ms / 1000)
 
 class Runner():
