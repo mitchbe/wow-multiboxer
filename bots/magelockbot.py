@@ -14,7 +14,7 @@ from botai import *
 from botctrl import *
 
 
-if (len(sys.argv) == 3) :
+if (len(sys.argv) == 4) :
     MAIN_WIN_ID    = sys.argv[1]
     WARLOCK_WIN_ID = sys.argv[2]
     MAGE_WIN_ID    = sys.argv[3]
