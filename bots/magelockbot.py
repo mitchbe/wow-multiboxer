@@ -130,7 +130,7 @@ class MagelockBotFrame(wx.Dialog):
 
         def toggleAutoFollow(e):
            self.auto_follow = True if e.IsChecked() else False 
-        b_autofollow.Bind(wx.EVT_TOGGLEBUTTON, self.__btn_ctrl(toggleAutoFollow)) 
+        b_autofollow.Bind(wx.EVT_TOGGLEBUTTON, self.__no_focus(toggleAutoFollow)) 
 
         b_follow.Bind(wx.EVT_BUTTON, self.__btn_ctrl(self.warlock_ctrl.follow, self.mage_ctrl.follow)) 
 
