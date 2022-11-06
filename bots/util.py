@@ -7,7 +7,7 @@ import threading,time
 import datetime
 import random
 
-def delay(fn, min_sec, max_sec): 
+def delay(fn, min_ms, max_ms): 
     delay_ms = random.randint(min_ms, max_ms)
     sleep(delay_ms / 1000)
     fn();
