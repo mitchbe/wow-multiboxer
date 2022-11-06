@@ -6,6 +6,10 @@ import shlex,subprocess
 import threading,time
 import datetime
 
+def delay(fn, min_sec, max_sec): 
+    delay_ms = random.randint(min_ms, max_ms)
+    sleep(delay_ms / 1000)
+    fn();
 
 class Runner():
     @staticmethod

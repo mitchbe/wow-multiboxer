@@ -10,10 +10,6 @@ from time import sleep
 from util import * 
 import random
 
-def delay(fn, min_sec, max_sec): 
-    delay_ms = random.rantint(min_ms, max_ms)
-    sleep(delay_ms / 1000)
-    fn();
 
 
 class ScreenReader():
