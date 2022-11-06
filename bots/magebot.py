@@ -111,7 +111,7 @@ class MageBotFrame(wx.Dialog):
         b_stop       = wx.Button(self.widget_panel, wx.ID_ANY, "Stop")
         b_follow     = wx.Button(self.widget_panel, wx.ID_ANY, "Follow")
         b_autofollow = wx.ToggleButton(self.widget_panel, wx.ID_ANY, "Lock Follow")
-        b_walk.Bind(wx.EVT_BUTTON, self.__btn_ctrl(self.mage_ctrl.walk))
+        b_walk.Bind(wx.EVT_BUTTON, self.__btn_ctrl(self.mage_ctrl.walk_fwd))
         b_stop.Bind(wx.EVT_BUTTON, self.__btn_ctrl(self.mage_ctrl.stop))
 
         def toggleAutoFollow(e):
