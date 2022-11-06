@@ -165,8 +165,8 @@ class MagelockBotFrame(wx.Dialog):
             self.mage_ctrl.buff_group(c_nrParty.GetSelection() + 1)
 
         b_buff.Bind(wx.EVT_BUTTON, self.__btn_ctrl(self.warlock_ctrl.buff_self, magegroupbuff )) 
-        b_eat.Bind(wx.EVT_BUTTON, self.__btn_ctrl(delay(self.warlock_ctrl.eat, 0, 1000), delay(self.mage_ctrl.eat, 0, 1000))
-        b_drink.Bind(wx.EVT_BUTTON, self.__btn_ctrl(delay(self.warlock_ctrl.drink, 0, 1000), delay(self.mage_ctrl.drink, 0, 1000))
+        b_eat.Bind(wx.EVT_BUTTON, self.__btn_ctrl(delay(self.warlock_ctrl.eat, 0, 1000), delay(self.mage_ctrl.eat, 0, 1000)))
+        b_drink.Bind(wx.EVT_BUTTON, self.__btn_ctrl(delay(self.warlock_ctrl.drink, 0, 1000), delay(self.mage_ctrl.drink, 0, 1000)))
 
         s = wx.StaticBoxSizer(wx.StaticBox(self.widget_panel, -1, "Rest"), wx.VERTICAL)
 
