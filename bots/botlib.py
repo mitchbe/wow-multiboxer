@@ -8,8 +8,6 @@ from time import sleep
 #sys.path.append(os.getcwd() + '/../lib')
 #sys.path.append(os.getcwd() + '/lib')
 from util import * 
-import random
-
 
 
 class ScreenReader():
