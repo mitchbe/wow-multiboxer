@@ -8,10 +8,13 @@ import datetime
 import random
 from time import sleep
 
-def delay(fn, min_ms, max_ms): 
+def delayfn(fn, min_ms, max_ms): 
+    delay(min_ms, max_ms);
+    fn();
+
+def delay( min_ms, max_ms): 
     delay_ms = random.randint(min_ms, max_ms)
     sleep(delay_ms / 1000)
-    fn();
 
 class Runner():
     @staticmethod

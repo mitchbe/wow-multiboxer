@@ -91,7 +91,8 @@ class MageAi(BotAi):
     ### Private Methods
 
     def __enter_combat(self):
-        sleep(ENTER_COMBAT_LATENCY_WAIT) 
+        #sleep(ENTER_COMBAT_LATENCY_WAIT) 
+        delay(0, 1000)
         self.in_combat = True
         self.ctrl.main_target_frostbolt()
         self.ctrl.main_target_fireblast()
@@ -137,7 +138,8 @@ class WarlockAi(BotAi):
     ### Private Methods
 
     def __enter_combat(self):
-        sleep(ENTER_COMBAT_LATENCY_WAIT) 
+        #sleep(ENTER_COMBAT_LATENCY_WAIT) 
+        delay(0, 1000)
         self.in_combat = True
         self.ctrl.main_target_corruption()
         self.ctrl.main_target_curse_agony()
