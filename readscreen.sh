@@ -77,7 +77,7 @@ function get_health() {
 #WIN_ID=$(xwininfo -name "World of Warcraft" | grep "Window id" | cut -d ' ' -f 4 )
 WIN_ID=$1
 #rm out/*
-screenshot
+#screenshot
 
 dir="/dev/shm/wowbot/"
 rm -rf $dir 

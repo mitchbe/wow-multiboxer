@@ -124,7 +124,7 @@ class MageControl(BotControl):
         sleep(3.1)
 
     def buff_group(self, nr):     
-        print("Mage: buff group (" + nr + ")")
+        print("Mage: buff group (" + str(nr) + ")")
         self.input.keypress("Ctrl+6"); 
         sleep(BUFF_COOLDOWN)
         super(MageControl, self).buff_group(nr)
@@ -141,14 +141,21 @@ class PriestControl(BotControl):
     def main_heal_over_time(self):   
         cooldown = 15000
         now = TimeUtil.get_time_ms()
-        if (now - cooldown > self.last_HoT) :
+        if now - cooldown > self.last_HoT :
             self.last_HoT = now
+            print("Priest: cast Renew @ main")
             self.input.keypress("F2 4"); 
             sleep(GLOBAL_COOLDOWN)
+            return True
+        else : 
+            return False
 
-    def main_heal_small(self):       self.input.keypress("F1 5"); 
+    def main_heal_small(self):       
+        print("Priest: cast Small Heal @ main")
+        self.input.keypress("F1 5"); 
 
     def main_heal_medium(self):      
+        print("Priest: cast Medium Heal @ main")
         self.input.keypress("F2 5"); 
         sleep(2.55)
         '''
@@ -159,16 +166,27 @@ class PriestControl(BotControl):
             self.input.keypress("F2 5"); 
         '''
 
-    def main_heal_big(self):         self.input.keypress("F1 5"); 
+    def main_heal_big(self):     
+        print("Priest: cast Big Heal @ main")
+        self.input.keypress("F1 5"); 
 
     def main_shield(self):          
+        print("Priest: cast Shield @ main")
         self.input.keypress("F2 Ctrl+6");
         sleep(GLOBAL_COOLDOWN)
 
     def main_target_wand(self):     
+        print("Priest: cast Wand")
         self.input.keypress("F2 f 0");
 
     def main_target_dot(self):     
+        print("Priest: cast Pain")
         self.input.keypress("F2 f 2");
         sleep(GLOBAL_COOLDOWN)
+
+    def main_target_smite(self):
+        print("Priest: cast Smite")
+        self.input.keypress("F2 f 3");
+        sleep(2.2)
+
 

@@ -6,6 +6,7 @@ import json
 import shlex,subprocess,os
 from time import sleep
 from threading import Thread
+from inspect import signature
 #sys.path.append(os.getcwd() + '/../lib')
 #sys.path.append(os.getcwd() + '/lib')
 from util import * 
@@ -18,7 +19,7 @@ if (len(sys.argv) == 3) :
     MAIN_WIN_ID = sys.argv[1]
     PRIEST_WIN_ID = sys.argv[2]
 else :
-    print("Window ID Required for tank and heal")
+    print("Window ID Required for main and priest")
     exit(1)
 
 
@@ -82,6 +83,7 @@ class PriestBotFrame(wx.Dialog):
         sizer.Add(self.add_move_btns())
         sizer.Add(self.add_buff_btns())
         sizer.Add(self.add_potion_btns())
+        sizer.Add(self.add_priest_ai_btns())
 
         self.widget_panel.SetSizerAndFit(sizer)
         sizer.SetSizeHints(self)
@@ -92,10 +94,13 @@ class PriestBotFrame(wx.Dialog):
         self.focus_panel.SetFocus()
 
     def __no_focus(self, fn):
-        def dofn(e):
-            fn()
+        def run(e):
+            if len(signature(fn).parameters) > 0 : 
+                fn(e)
+            else :
+                fn()
             self.__set_focus()
-        return dofn
+        return run 
 
     def __btn_ctrl(self, action):
         return self.__no_focus(lambda : self.priest_worker.push(action))
@@ -183,50 +188,27 @@ class PriestBotFrame(wx.Dialog):
         s.Add(s1, 1, wx.EXPAND)
 
         return s
-    '''
 
-    def autoFollow(self, fn):
-        def handler(e):
-            fn(e)
-            if self.autoFollow and not e.IsChecked() :
-                Keyboard.press("9"); 
+    def add_priest_ai_btns(self):
+        def b_autoheal_run(e): self.priest_ai.autoheal = e.IsChecked(); 
+        b_autoheal = wx.ToggleButton(self.widget_panel, wx.ID_ANY, "Autoheal")
+        b_autoheal.Bind(wx.EVT_TOGGLEBUTTON, self.__no_focus(b_autoheal_run)); 
 
-        return handler
+        def b_conserve_mana_run(e): self.priest_ai.conserve_mana = e.IsChecked(); 
+        b_conserve_mana    = wx.ToggleButton(self.widget_panel, wx.ID_ANY, "Save Mana")
+        b_conserve_mana.Bind(wx.EVT_TOGGLEBUTTON, self.__no_focus(b_conserve_mana_run)); 
 
+        def b_shield_main_run(e): self.priest_ai.shield_main = e.IsChecked(); 
+        b_shield_main    = wx.ToggleButton(self.widget_panel, wx.ID_ANY, "Shield")
+        b_shield_main.Bind(wx.EVT_TOGGLEBUTTON, self.__no_focus(b_shield_main_run)); 
 
-    def actionBtns(self, self.widget_panel):
-        b_target    = wx.Button(self.widget_panel, wx.ID_ANY, "Target")
-        b_burn      = wx.ToggleButton(self.widget_panel, wx.ID_ANY, "Burn")
-        b_freeze    = wx.ToggleButton(self.widget_panel, wx.ID_ANY, "Freeze")
-        b_wand      = wx.Button(self.widget_panel, wx.ID_ANY, "Wand")
-
-        b_target.Bind(wx.EVT_BUTTON, self.__no_focus(lambda e : Keyboard.press("F2 f"))); 
-        b_burn.Bind(wx.EVT_TOGGLEBUTTON, self.__no_focus(self.autoFollow(lambda e : self.keyboard.rotate("mage/burn") if e.IsChecked() else self.keyboard.stopRotate()))); 
-        b_freeze.Bind(wx.EVT_TOGGLEBUTTON, self.__no_focus(self.autoFollow(lambda e : self.keyboard.rotate("mage/freeze") if e.IsChecked() else self.keyboard.stopRotate()))); 
-        b_wand.Bind(wx.EVT_BUTTON, self.__no_focus(lambda e : Keyboard.press("F2 f 5"))); 
-
-        s = wx.StaticBoxSizer(wx.StaticBox(self.widget_panel, -1, "Action"), wx.VERTICAL)
-
-        s1 = wx.BoxSizer(wx.HORIZONTAL)
-        s1.Add(b_target, 1, wx.EXPAND | wx.ALIGN_CENTER | wx.ALL, 2)
-        s.Add(s1, 1, wx.EXPAND)
-
-        s1 = wx.BoxSizer(wx.HORIZONTAL)
-        s1.Add(b_burn, 1, wx.EXPAND | wx.ALIGN_CENTER | wx.ALL, 2)
-        s.Add(s1, 1, wx.EXPAND)
-
-        s1 = wx.BoxSizer(wx.HORIZONTAL)
-        s1.Add(b_freeze, 1, wx.EXPAND | wx.ALIGN_CENTER | wx.ALL, 2)
-        s1.Add(b_wand, 1, wx.EXPAND | wx.ALIGN_CENTER | wx.ALL, 2)
-        s.Add(s1, 1, wx.EXPAND)
-
-        b_info    = wx.Button(self.widget_panel, wx.ID_ANY, "Info")
-        b_info.Bind(wx.EVT_BUTTON, self.__no_focus(lambda e : ScreenInfo.doPrintScreenInfo())); 
-        s1 = wx.BoxSizer(wx.HORIZONTAL)
-        s1.Add(b_info, 1, wx.EXPAND | wx.ALIGN_CENTER | wx.ALL, 2)
+        s = wx.StaticBoxSizer(wx.StaticBox(self.widget_panel, -1, "Priest AI"), wx.VERTICAL)
+        s1 = wx.BoxSizer(wx.VERTICAL)
+        s1.Add(b_conserve_mana, 1, wx.EXPAND | wx.ALIGN_CENTER | wx.ALL, 2)
+        s1.Add(b_shield_main, 1, wx.EXPAND | wx.ALIGN_CENTER | wx.ALL, 2)
+        s1.Add(b_autoheal, 1, wx.EXPAND | wx.ALIGN_CENTER | wx.ALL, 2)
         s.Add(s1, 1, wx.EXPAND)
         return s
-    '''
 
 if __name__ == '__main__':
     app = wx.App()

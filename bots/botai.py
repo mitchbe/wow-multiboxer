@@ -23,8 +23,11 @@ class BotAi():
 class PriestAi(BotAi):
     def __init__(self, world_state, priest_ctrl):
         super(PriestAi, self).__init__(world_state);
-        self.ctrl      = priest_ctrl
-        self.in_combat = False
+        self.ctrl          = priest_ctrl
+        self.in_combat     = False
+        self.conserve_mana = False
+        self.shield_main   = False
+        self.autoheal      = False
     
     ### Public Interface
 
@@ -37,13 +40,19 @@ class PriestAi(BotAi):
     ### Private Methods
 
     def __enter_combat(self):
+        print("Priest: enter combat")
         self.in_combat = True
-        self.ctrl.main_shield()
+        if self.shield_main : 
+            self.ctrl.main_shield()
         self.ctrl.main_target_dot()
-        self.ctrl.main_target_wand()
+        if self.conserve_mana : 
+            self.ctrl.main_target_wand();
+        else : 
+            self.ctrl.main_target_smite()
 
 
     def __exit_combat(self):
+        print("Priest: exit combat")
         self.in_combat = False 
 
     def __check_combat_state_change(self):
@@ -58,21 +67,26 @@ class PriestAi(BotAi):
         return False
 
     def __check_heal_main(self):
-        health = self.world_state.main_health 
-        if health > 0 :
-            if health < 95 : 
-                self.ctrl.main_heal_over_time()
-                return True
-
-            if health < 75 : 
-                self.ctrl.main_heal_medium()
-                return True
-        return False
+        if self.autoheal : 
+            health = self.world_state.main_health 
+            if health > 0 :
+                if health < 95 : self.ctrl.main_heal_over_time()
+                if health < 75 : self.ctrl.main_heal_medium()
+                if health < 95 : return True
+            return False
+        else : 
+            return False
 
     def __check_assist_main(self):
         if self.in_combat:
-            self.ctrl.main_target_wand()
-        return False
+            if self.conserve_mana : 
+                self.ctrl.main_target_wand()
+                return False
+            else : 
+                self.ctrl.main_target_smite()
+                return True 
+        else: 
+            return False
 
        
 class MageAi(BotAi):
