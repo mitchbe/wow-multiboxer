@@ -4,6 +4,6 @@ while true
 do
 	echo "**CASTING**"
 	./cast.sh
-	sleep 5
+	sleep 7
 
 done
