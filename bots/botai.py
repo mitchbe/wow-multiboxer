@@ -28,8 +28,10 @@ class PriestAi(BotAi):
         self.conserve_mana = False
         self.shield_main   = False
         self.autoheal      = False
-    
-    ### Public Interface
+        self.auto_dot      = 0
+        self.delay         = 0
+        self.wand_assist   = False
+            ### Public Interface
 
     #@returns True when the AI may have more to do, False otherwise
     def act(self): 
@@ -42,9 +44,13 @@ class PriestAi(BotAi):
     def __enter_combat(self):
         print("Priest: enter combat")
         self.in_combat = True
+        sleep(self.delay)
+
         if self.shield_main : 
             self.ctrl.main_shield()
+
         self.ctrl.main_target_dot()
+
         if self.conserve_mana : 
             self.ctrl.main_target_wand();
         else : 
@@ -67,12 +73,21 @@ class PriestAi(BotAi):
         return False
 
     def __check_heal_main(self):
+        if self.shield_main :
+            if self.ctrl.main_shield() : 
+                return True
+
         if self.autoheal : 
             health = self.world_state.main_health 
+
             if health > 0 :
-                if health < 95 : self.ctrl.main_heal_over_time()
-                if health < 75 : self.ctrl.main_heal_medium()
-                if health < 95 : return True
+                if health < 95 : 
+                    if self.ctrl.main_heal_over_time() : 
+                        return True
+                    if self.ctrl.main_shield() : 
+                        return True
+                    if health < 60 : self.ctrl.main_heal_medium()
+                    if health < 85 : self.ctrl.main_heal_small()
             return False
         else : 
             return False
@@ -94,11 +109,15 @@ class MageAi(BotAi):
         super(MageAi, self).__init__(world_state);
         self.ctrl      = mage_ctrl
         self.in_combat = False
+        self.disable   = False
     
     ### Public Interface
 
     #@returns True when the AI may have more to do, False otherwise
     def act(self): 
+        if self.disable :
+            return False
+
         return  self.__check_combat_state_change() or \
                 self.__check_assist_main()
 
@@ -161,6 +180,7 @@ class WarlockAi(BotAi):
         print("Warlock: enter combat")
         delay(0, 1000)
         self.in_combat = True
+        self.ctrl.main_target_pet()
         self.ctrl.main_target_corruption()
         self.ctrl.main_target_curse_agony()
         self.ctrl.main_target_immolate()

@@ -12,29 +12,31 @@ from inspect import signature
 from util import * 
 from botlib import *
 from botai import *
+from druidai import *
 from botctrl import *
+from druidctrl import *
 
 
 if (len(sys.argv) == 3) :
     MAIN_WIN_ID = sys.argv[1]
     PRIEST_WIN_ID = sys.argv[2]
 else :
-    print("Window ID Required for main and priest")
+    print("Window ID Required for main and druid")
     exit(1)
 
 
 
-class PriestBotFrame(wx.Dialog):
+class DruidBotFrame(wx.Dialog):
 
     ### Initialize
 
     def __init__(self, *args, **kw):
-        super(PriestBotFrame, self).__init__(*args, **kw)
+        super(DruidBotFrame, self).__init__(*args, **kw)
 
         self.world_state = WorldState()
 
-        self.priest_ctrl = PriestControl(Input(PRIEST_WIN_ID))
-        self.priest_ai   = PriestAi(self.world_state, self.priest_ctrl)
+        self.druid_ctrl = DruidControl(Input(PRIEST_WIN_ID))
+        self.druid_ai   = DruidAi(self.world_state, self.druid_ctrl)
 
         # Create UI
         self.Bind(wx.EVT_CLOSE, self.onClose)
@@ -43,9 +45,9 @@ class PriestBotFrame(wx.Dialog):
         self.__add_widgets()
 
         # Bot Worker
-        self.priest_worker  = BotWorker(self.priest_ai) 
-        self.priest_worker.start()
-        self.world_state.on_change(self.priest_worker.wake_the_ai)
+        self.druid_worker  = BotWorker(self.druid_ai) 
+        self.druid_worker.start()
+        self.world_state.on_change(self.druid_worker.wake_the_ai)
     
         # Screen Reader
         self.screen_reader = ScreenReader(MAIN_WIN_ID, self.world_state)
@@ -80,7 +82,7 @@ class PriestBotFrame(wx.Dialog):
         sizer.Add(self.add_move_btns())
         sizer.Add(self.add_buff_btns())
         sizer.Add(self.add_potion_btns())
-        sizer.Add(self.add_priest_ai_btns())
+        sizer.Add(self.add_druid_ai_btns())
 
         self.widget_panel.SetSizerAndFit(sizer)
         sizer.SetSizeHints(self)
@@ -100,23 +102,23 @@ class PriestBotFrame(wx.Dialog):
         return run 
 
     def __btn_ctrl(self, action):
-        return self.__no_focus(lambda : self.priest_worker.push(action))
+        return self.__no_focus(lambda : self.druid_worker.push(action))
 
     def add_move_btns(self):
         b_turnleft  = wx.Button(self.widget_panel, wx.ID_ANY, "Rot L")
         b_turnright = wx.Button(self.widget_panel, wx.ID_ANY, "Rot R")
-        b_turnleft.Bind(wx.EVT_BUTTON, self.__btn_ctrl(self.priest_ctrl.turn_left))
-        b_turnright.Bind(wx.EVT_BUTTON, self.__btn_ctrl(self.priest_ctrl.turn_right))
+        b_turnleft.Bind(wx.EVT_BUTTON, self.__btn_ctrl(self.druid_ctrl.turn_left))
+        b_turnright.Bind(wx.EVT_BUTTON, self.__btn_ctrl(self.druid_ctrl.turn_right))
 
 
         b_walkfwd    = wx.Button(self.widget_panel, wx.ID_ANY, "Fwd")
         b_walkbwd    = wx.Button(self.widget_panel, wx.ID_ANY, "Bwd")
         b_stop       = wx.Button(self.widget_panel, wx.ID_ANY, "Stop")
         b_follow     = wx.Button(self.widget_panel, wx.ID_ANY, "Follow")
-        b_walkfwd.Bind(wx.EVT_BUTTON, self.__btn_ctrl(self.priest_ctrl.walk_fwd))
-        b_walkbwd.Bind(wx.EVT_BUTTON, self.__btn_ctrl(self.priest_ctrl.walk_bwd))
-        b_stop.Bind(wx.EVT_BUTTON, self.__btn_ctrl(self.priest_ctrl.stop))
-        b_follow.Bind(wx.EVT_BUTTON, self.__btn_ctrl(self.priest_ctrl.follow)) 
+        b_walkfwd.Bind(wx.EVT_BUTTON, self.__btn_ctrl(self.druid_ctrl.walk_fwd))
+        b_walkbwd.Bind(wx.EVT_BUTTON, self.__btn_ctrl(self.druid_ctrl.walk_bwd))
+        b_stop.Bind(wx.EVT_BUTTON, self.__btn_ctrl(self.druid_ctrl.stop))
+        b_follow.Bind(wx.EVT_BUTTON, self.__btn_ctrl(self.druid_ctrl.follow)) 
 
         s = wx.StaticBoxSizer(wx.StaticBox(self.widget_panel, -1, "Move Healer"), wx.VERTICAL)
 
@@ -147,11 +149,11 @@ class PriestBotFrame(wx.Dialog):
 
 
         def dobuff():
-            self.priest_ctrl.buff_group(c_nrParty.GetSelection() + 1)
+            self.druid_ctrl.buff_group(c_nrParty.GetSelection() + 1)
 
         b_buff.Bind(wx.EVT_BUTTON, self.__btn_ctrl(dobuff)) 
-        b_eat.Bind(wx.EVT_BUTTON, self.__btn_ctrl(self.priest_ctrl.eat))
-        b_drink.Bind(wx.EVT_BUTTON, self.__btn_ctrl(self.priest_ctrl.drink))
+        b_eat.Bind(wx.EVT_BUTTON, self.__btn_ctrl(self.druid_ctrl.eat))
+        b_drink.Bind(wx.EVT_BUTTON, self.__btn_ctrl(self.druid_ctrl.drink))
 
         s = wx.StaticBoxSizer(wx.StaticBox(self.widget_panel, -1, "Rest"), wx.VERTICAL)
 
@@ -170,14 +172,14 @@ class PriestBotFrame(wx.Dialog):
     def add_potion_btns(self):
         b_manapot       = wx.Button(self.widget_panel, wx.ID_ANY, "Mana")
         b_healthpot     = wx.Button(self.widget_panel, wx.ID_ANY, "Health")
-        b_healself1     = wx.Button(self.widget_panel, wx.ID_ANY, "Heal Self 1")
-        b_healself2     = wx.Button(self.widget_panel, wx.ID_ANY, "Heal Self 2")
+        b_healself1     = wx.Button(self.widget_panel, wx.ID_ANY, "Self HoT")
+        b_healself2     = wx.Button(self.widget_panel, wx.ID_ANY, "Self Heal")
 
-        b_healthpot.Bind(wx.EVT_BUTTON, self.__btn_ctrl(self.priest_ctrl.potion_health)) 
-        b_manapot.Bind(wx.EVT_BUTTON, self.__btn_ctrl(self.priest_ctrl.potion_mana)) 
+        b_healthpot.Bind(wx.EVT_BUTTON, self.__btn_ctrl(self.druid_ctrl.potion_health)) 
+        b_manapot.Bind(wx.EVT_BUTTON, self.__btn_ctrl(self.druid_ctrl.potion_mana)) 
 
-        b_healself1.Bind(wx.EVT_BUTTON, self.__btn_ctrl(self.priest_ctrl.self_heal_small)) 
-        b_healself2.Bind(wx.EVT_BUTTON, self.__btn_ctrl(self.priest_ctrl.self_heal_medium)) 
+        b_healself1.Bind(wx.EVT_BUTTON, self.__btn_ctrl(self.druid_ctrl.self_heal_over_time)) 
+        b_healself2.Bind(wx.EVT_BUTTON, self.__btn_ctrl(self.druid_ctrl.self_heal)) 
 
         s = wx.StaticBoxSizer(wx.StaticBox(self.widget_panel, -1, "Potions"), wx.VERTICAL)
 
@@ -193,61 +195,35 @@ class PriestBotFrame(wx.Dialog):
 
         return s
 
-    def add_priest_ai_btns(self):
-        def b_ai_delay_run(): self.priest_ai.delay = c_ai_delay.GetSelection(); 
+    def add_druid_ai_btns(self):
+        def b_ai_delay_run(): self.druid_ai.delay = c_ai_delay.GetSelection(); 
         c_ai_delay   = wx.Choice(self.widget_panel, choices = ['0', '1', '2', '3', '4', '5'])
         c_ai_delay.SetSelection(0)
         c_ai_delay.Bind(wx.EVT_CHOICE, self.__btn_ctrl(b_ai_delay_run)) 
 
-        def b_autoheal_run(e): self.priest_ai.autoheal = e.IsChecked(); 
+        def b_autoheal_run(e): self.druid_ai.autoheal = e.IsChecked(); 
         b_autoheal = wx.ToggleButton(self.widget_panel, wx.ID_ANY, "Autoheal")
         b_autoheal.Bind(wx.EVT_TOGGLEBUTTON, self.__no_focus(b_autoheal_run)); 
 
-        def b_conserve_mana_run(e): self.priest_ai.conserve_mana = e.IsChecked(); 
-        b_conserve_mana    = wx.ToggleButton(self.widget_panel, wx.ID_ANY, "Sv Mana")
-        b_conserve_mana.Bind(wx.EVT_TOGGLEBUTTON, self.__no_focus(b_conserve_mana_run)); 
+        def b_autospell_run(e): self.druid_ai.autospell = e.IsChecked(); 
+        b_autospell    = wx.ToggleButton(self.widget_panel, wx.ID_ANY, "Autospell")
+        b_autospell.Bind(wx.EVT_TOGGLEBUTTON, self.__no_focus(b_autospell_run)); 
 
-        def b_shield_main_run(e): self.priest_ai.shield_main = e.IsChecked(); 
-        b_shield_main    = wx.ToggleButton(self.widget_panel, wx.ID_ANY, "Shield")
-        b_shield_main.Bind(wx.EVT_TOGGLEBUTTON, self.__no_focus(b_shield_main_run)); 
-
-        def b_wand_assist_run(e): self.priest_ai.wand_assist = e.IsChecked(); 
-        b_wand_assist    = wx.ToggleButton(self.widget_panel, wx.ID_ANY, "Wand")
-        b_wand_assist.Bind(wx.EVT_TOGGLEBUTTON, self.__no_focus(b_wand_assist_run)); 
-
-        #def b_autoredot_run(e): self.priest_ai.redot = e.IsChecked(); 
-        #b_autoredot   = wx.ToggleButton(self.widget_panel, wx.ID_ANY, "Null")
-        #b_autoredot.Bind(wx.EVT_TOGGLEBUTTON, self.__no_focus(b_autoredot)); 
-
-        #def b_dot_run(e): self.priest_ctrl.main_target_dot(reset=True)
-        #b_redot       = wx.Button(self.widget_panel, wx.ID_ANY, "Redot")
-        #b_redot.Bind(wx.EVT_BUTTON, self.__btn_ctrl(b_dot_run)) 
-
-        s = wx.StaticBoxSizer(wx.StaticBox(self.widget_panel, -1, "Priest AI"), wx.VERTICAL)
+        s = wx.StaticBoxSizer(wx.StaticBox(self.widget_panel, -1, "Druid AI"), wx.VERTICAL)
 
         s1 = wx.BoxSizer(wx.HORIZONTAL)
-        s1.Add(b_conserve_mana, 1, wx.EXPAND | wx.ALIGN_CENTER | wx.ALL, 2)
-        s1.Add(b_shield_main, 1, wx.EXPAND | wx.ALIGN_CENTER | wx.ALL, 2)
-
-        #s2 = wx.BoxSizer(wx.HORIZONTAL)
-        #s2.Add(b_autoredot, 1, wx.EXPAND | wx.ALIGN_CENTER | wx.ALL, 2)
-        #s2.Add(b_redot, 1, wx.EXPAND | wx.ALIGN_CENTER | wx.ALL, 2)
+        s1.Add(b_autospell, 1, wx.EXPAND | wx.ALIGN_CENTER | wx.ALL, 2)
+        s1.Add(b_autoheal, 1, wx.EXPAND | wx.ALIGN_CENTER | wx.ALL, 2)
 
         s3 = wx.BoxSizer(wx.HORIZONTAL)
-        s3.Add(b_autoheal, 1, wx.EXPAND | wx.ALIGN_CENTER | wx.ALL, 2)
         s3.Add(c_ai_delay, 1, wx.EXPAND | wx.ALIGN_CENTER | wx.ALL, 2)
 
-        s4 = wx.BoxSizer(wx.HORIZONTAL)
-        s4.Add(b_wand_assist, 1, wx.EXPAND | wx.ALIGN_CENTER | wx.ALL, 2)
-
         s.Add(s1, 1, wx.EXPAND)
-        #s.Add(s2, 1, wx.EXPAND)
         s.Add(s3, 1, wx.EXPAND)
-        s.Add(s4, 1, wx.EXPAND)
         return s
 
 if __name__ == '__main__':
     app = wx.App()
-    frm = PriestBotFrame(None, title="Priest Bot")
+    frm = DruidBotFrame(None, title="Druid Bot")
     frm.Show()
     app.MainLoop()

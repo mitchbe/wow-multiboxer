@@ -1,2 +1,2 @@
 #!/bin/bash
-xdotool search --name orld
+xdotool search --name "^World of Warcraft$"

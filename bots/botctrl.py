@@ -16,8 +16,8 @@ class BotControl():
 
     # Move
 
-    def turn_left(self):    self.input.keyhold("a", 0.5); 
-    def turn_right(self):   self.input.keyhold("d", 0.5); 
+    def turn_left(self):    self.input.keyhold("a", 0.25); 
+    def turn_right(self):   self.input.keyhold("d", 0.25); 
     def walk_bwd(self):     self.input.keyhold("s", 0.7); 
     def walk_fwd(self):     self.input.keyhold("w", 0.7); 
     def stop(self):         self.input.keypress("s"); 
@@ -60,6 +60,11 @@ class WarlockControl(BotControl):
         super(WarlockControl, self).__init__(inputdev)
 
     # Spells
+    def main_target_pet(self):
+        print("Warlock: cast Pet")
+        self.input.keypress("F2 f Shift+t");
+        sleep(0.1)
+
     def main_target_corruption(self):
         print("Warlock: cast Corruption")
         self.input.keypress("F2 f 2");
@@ -134,14 +139,22 @@ class PriestControl(BotControl):
     def __init__(self, inputdev):
         super(PriestControl, self).__init__(inputdev)
         self.last_HoT = 0
+        self.last_shield = 0
         self.last_H = 0
+        self.last_dot = 0
 
     # Healing
+
+    def self_heal_small(self):
+        self.input.keypress("F1 4"); 
+
+    def self_heal_medium(self):
+        self.input.keypress("F1 5"); 
 
     def main_heal_over_time(self):   
         cooldown = 15000
         now = TimeUtil.get_time_ms()
-        if now - cooldown > self.last_HoT :
+        if now - self.last_HoT > cooldown :
             self.last_HoT = now
             print("Priest: cast Renew @ main")
             self.input.keypress("F2 4"); 
@@ -152,12 +165,13 @@ class PriestControl(BotControl):
 
     def main_heal_small(self):       
         print("Priest: cast Small Heal @ main")
-        self.input.keypress("F1 5"); 
+        self.input.keypress("F2 5"); 
+        sleep(2.55)
 
     def main_heal_medium(self):      
         print("Priest: cast Medium Heal @ main")
-        self.input.keypress("F2 5"); 
-        sleep(2.55)
+        self.input.keypress("F2 7"); 
+        sleep(3.05)
         '''
         cooldown = 2500
         now = TimeUtil.get_time_ms()
@@ -171,18 +185,37 @@ class PriestControl(BotControl):
         self.input.keypress("F1 5"); 
 
     def main_shield(self):          
-        print("Priest: cast Shield @ main")
-        self.input.keypress("F2 Ctrl+6");
-        sleep(GLOBAL_COOLDOWN)
+        #print("Priest: cast Shield @ main")
+        #self.input.keypress("F2 Ctrl+6");
+        #sleep(GLOBAL_COOLDOWN)
+        cooldown = 15000
+        now = TimeUtil.get_time_ms()
+        if now - self.last_shield > cooldown :
+            self.last_shield = now
+            print("Priest: cast Shield @ main")
+            self.input.keypress("F2 Ctrl+6");
+            sleep(GLOBAL_COOLDOWN)
+            return True
+        else : 
+            return False
 
     def main_target_wand(self):     
         print("Priest: cast Wand")
         self.input.keypress("F2 f 0");
 
-    def main_target_dot(self):     
-        print("Priest: cast Pain")
-        self.input.keypress("F2 f 2");
-        sleep(GLOBAL_COOLDOWN)
+    def main_target_dot(self, reset=False):     
+        if reset:
+            self.last_dot=0
+        cooldown = 15000
+        now = TimeUtil.get_time_ms()
+        if now - self.last_dot > cooldown :
+            self.last_dot = now
+            print("Priest: cast Pain")
+            self.input.keypress("F2 f 2");
+            sleep(GLOBAL_COOLDOWN)
+            return True
+        else : 
+            return False
 
     def main_target_smite(self):
         print("Priest: cast Smite")
